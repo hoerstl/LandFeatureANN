@@ -62,7 +62,7 @@ def main():
         plt.yticks([])
         plt.grid(False)
         plt.imshow(images_array[i], cmap=plt.cm.binary)
-        plt.xlabel(class_names[0])
+        plt.xlabel(class_names[0]) # not sure yet
     plt.show()
 
 if __name__ == "__main__":
