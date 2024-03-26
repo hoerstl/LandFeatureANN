@@ -16,6 +16,7 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt 
 from PIL import Image
+from PIL import ImageColor
 
 # list files in a directory
 import os
@@ -41,18 +42,39 @@ def images_processing(images_path):
         train_image_np = np.array(train_image)
 
         # normalize the pixel values between 0 and 1:
-        train_image_np = train_image_np / 255.0
+        # train_image_np = train_image_np / 255.0
         images_array.append(train_image_np)
     
     return np.array(images_array)
 
 
 def main():
+    # Class names to plot the images:
+    class_names = ['Water', 'Buildings', 'Roads', 'Foliage', 'Mineral deposits', 'Mountainous terrain', 'Rocky terrain', 'Sandy terrain', 'Plains', 'Snow', 'Grass']
+    class_colors = []
+    class_codes = {class_names[i]: i for i in range(len(class_names)}
+    
+    # hex_to_rgb
+    cvt = lambda hex: ImageColor.getcolor("hex", "RGB")
+    colors_to_code = {cvt('#0f5e9c'): 0,
+                      cvt('#f2f2f2'): 1, cvt('#606060'): 1,
+                      cvt('#c4c4c4'): 2,
+                      cvt('#3a5f0b'): 3,
+                      cvt('#490e0e'): 4,
+                      cvt('#5a7a4c'): 5,
+                      cvt('#698287'): 6,
+                      cvt('#f7ae64'): 7,
+                      cvt('#c89e23'): 8,
+                      cvt('#fffafa'): 9,
+                      cvt('#7cfc00'): 10}
+
+
+    
+
     images_path = r'C:\Users\phamt2\ANNproject\LandFeatureANN\colored_images'
     images_array = images_processing(images_path)
 
-    # Class names to plot the images:
-    class_names = ['Water', 'Buildings', 'Roads', 'Foliage', 'Mineral deposits', 'Mountainous terrain', 'Rocky terrain', 'Sandy terrain', 'Plains', 'Snow', 'Grass']
+    
 
     # Display the first 25 images from the training set to verify the data:
     plt.figure(figsize=(10,10))
