@@ -54,9 +54,9 @@ def decode_image(encoded_img):
     """
     global code_to_colors, class_names
     decoded_image = np.zeros((len(encoded_img), len(encoded_img[0]), 3))
-    for i in range(len(colorized_img)):
-        for j in range(len(colorized_img[0])):
-            decoded_image[i][j] = code_to_colors[int(encoded_img[i][j] * (len(class_names) + 1))]
+    for i in range(len(encoded_img)):
+        for j in range(len(encoded_img[0])):
+            decoded_image[i][j] = np.array(code_to_colors[int(encoded_img[i][j] * (len(class_names) + 1))])
     return decoded_image
 
 
@@ -90,8 +90,20 @@ def images_processing(images_path):
     return np.array(images_array)
 
 
+
+# def test_encode_decode(image_path):
+    # with Image.open(image_path) as img:
+        # img = img.resize((200,200))
+        # img_np = np.array(img)
+        
+    # start_img = img_np
+    # encoded_img = encode_image(start_img)
+    # end_img = decode_image(encoded_img)
+    # print(f"Encode-Decode worked correctly: {start_img == end_img}")
+
+
 def main():
-    global class_names, class_colors, class_codes, colors_to_code
+    global class_names, class_colors, class_codes, colors_to_code, code_to_colors
     # Class names to plot the images:
     class_names = ['Water', 'Buildings', 'Roads', 'Foliage', 'Mineral deposits', 'Mountainous terrain', 'Rocky terrain', 'Sandy terrain', 'Plains', 'Snow', 'Grass']
     class_colors = ['#0f5e9c', ('#f2f2f2', '#606060'), '#c4c4c4', '#3a5f0b', '#490e0e', '#5a7a4c', '#698287', '#f7ae64', '#c89e23', '#fffafa', '#7cfc00']
@@ -109,15 +121,21 @@ def main():
                       cvt('#f7ae64'): 7,
                       cvt('#c89e23'): 8,
                       cvt('#fffafa'): 9,
-                      cvt('#7cfc00'): 10,
-                      'default':      11}
+                      cvt('#7cfc00'): 10}
+    
+    code_to_colors = {value: key for key, value in colors_to_code.items()}
+    colors_to_code['default'] = 11
+    code_to_colors[11] = (0,0,0)
 
 
+    
+    # test_encode_decode(os.path.join(os.getcwd(), 'colored_images', '60.png'))
     
 
     colored_image_path = os.path.join(os.getcwd(), 'colored_images')
     colored_image_array = images_processing(colored_image_path)
 
+    print('starting the conversion process')
     with open('training_outputs.pickle', 'wb') as training_file:
         pickle.dump(colored_image_array, training_file)
     print('Colored images converted successfully...')
@@ -140,6 +158,7 @@ def main():
     with open('training_inputs.pickle', 'wb') as training_file:
         pickle.dump(raw_image_array, training_file)
     print('Raw images converted successfully...')
+    
     
 
 if __name__ == "__main__":

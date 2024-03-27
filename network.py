@@ -93,6 +93,7 @@ def main():
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
+    # TODO: We need to add our validation inputs/outputs here
     history = model.fit(training_inputs, training_outputs, epochs=10)
     
     plt.plot(history.history['accuracy'], label='accuracy')
