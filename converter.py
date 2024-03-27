@@ -9,9 +9,6 @@ Contributors:
 - Lawrence Hoerst
 """
 
-# import tensorflow
-import tensorflow as tf 
-
 # import libraries
 import numpy as np
 import matplotlib.pyplot as plt 
@@ -26,10 +23,45 @@ def sort_image_names(nameList):
     # We need to sort this list twice since one sort gives that, for example '59.png' < '6.png' when we want to see 6 first.
     # Therefore, we need to sort first by numbering and then by length of the file to get the 1, 2, 3, 4, ... behavior we want to see
     return sorted(sorted(nameList), key=lambda e: len(e))
+    
+    
+    
+def encode_image(colorized_img):
+    """
+    A function which takes in an image's numpy array representation and returns a numpy representation
+    where all pixels have been classified according to their color.
+    colorized_img: A three-dimensional numpy array where the third dimension is rgb values
+    """
+    global colors_to_code, class_names
+    codified_img = np.zeros((len(colorized_img), len(colorized_img[0]), 1))
+    for i in range(len(colorized_img)):
+        for j in range(len(colorized_img[0])):
+            if tuple(colorized_img[i][j]) in colors_to_code:
+                codified_img[i][j] = colors_to_code[tuple(colorized_img[i][j])] + .5
+            else:
+                codified_img[i][j] = colors_to_code['default'] + .5
+    # normalize the pixel values between 0 and 1:
+    codified_img = codified_img / (len(class_names) + 1)
+    return codified_img
+
+
+def decode_image(encoded_img):
+    """
+    A function which takes in an encoded image's numpy array representation and returns a numpy
+    three-dimensional array which can be converted back to an image
+    encoded_img: A two-dimensional array where each pixel is a classification value between 0
+    and 1.
+    """
+    global code_to_colors, class_names
+    decoded_image = np.zeros((len(encoded_img), len(encoded_img[0]), 3))
+    for i in range(len(colorized_img)):
+        for j in range(len(colorized_img[0])):
+            decoded_image[i][j] = code_to_colors[int(encoded_img[i][j] * (len(class_names) + 1))]
+    return decoded_image
 
 
 def images_processing(images_path):
-    global colors_to_code
+    
     images_array = []
 
     # Load images:
@@ -48,16 +80,9 @@ def images_processing(images_path):
         # Convert images to numpy array:
         # Each pixel will have three values corresponding to the RGB channels:
         train_image_np = np.array(train_image)
-        train_codified_image = np.zeros((len(train_image_np), len(train_image_np[0]), 1))
-        for i in range(len(train_image_np)):
-            for j in range(len(train_image_np[0])):
-                if tuple(train_image_np[i][j]) in colors_to_code:
-                    train_codified_image[i][j] = colors_to_code[tuple(train_image_np[i][j])]
-                else:
-                    train_codified_image[i][j] = colors_to_code['default']
+        train_codified_image = encode_image(train_image_np)
 
-        # normalize the pixel values between 0 and 1:
-        # train_image_np = train_image_np / 255.0
+        
         images_array.append(train_codified_image)
     
     

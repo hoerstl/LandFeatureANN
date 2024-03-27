@@ -7,9 +7,8 @@ Contributers
 - Lawrence Hoerst
 """
 import tensorflow as tf
-# Maybe I can take out datasets
-from tensorflow.keras import datasets, layers, models
 import matplotlib.pyplot as plt
+import pickle
 
 
 
@@ -41,37 +40,39 @@ class TwoWayDict(dict):
 
 
 def main():
+    global class_names, class_colors, class_codes, colors_to_code
+    # Class names to plot the images:
+    class_names = ['Water', 'Buildings', 'Roads', 'Foliage', 'Mineral deposits', 'Mountainous terrain', 'Rocky terrain', 'Sandy terrain', 'Plains', 'Snow', 'Grass']
+    class_colors = ['#0f5e9c', ('#f2f2f2', '#606060'), '#c4c4c4', '#3a5f0b', '#490e0e', '#5a7a4c', '#698287', '#f7ae64', '#c89e23', '#fffafa', '#7cfc00']
+    class_codes = {class_names[i]: i for i in range(len(class_names))}
+    
+    # hex_to_rgb
+    cvt = lambda hex: ImageColor.getcolor(hex, "RGB")
+    colors_to_code = {cvt('#0f5e9c'): 0,
+                      cvt('#f2f2f2'): 1, cvt('#606060'): 1,
+                      cvt('#c4c4c4'): 2,
+                      cvt('#3a5f0b'): 3,
+                      cvt('#490e0e'): 4,
+                      cvt('#5a7a4c'): 5,
+                      cvt('#698287'): 6,
+                      cvt('#f7ae64'): 7,
+                      cvt('#c89e23'): 8,
+                      cvt('#fffafa'): 9,
+                      cvt('#7cfc00'): 10,
+                      'default':      11}
     
     
-    
-    
-    
-    classNames = ['water', 'buildings', 'roads', 'foliage', 'mineral deposits', 'mountainous', 'rocky', 'sandy', 'plains', 'snow', 'grass']
     model = models.Sequential()
     
-    # TODO: unpickle our test data here
-    (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
+    # unpickle our test data here
+    with open('training_inputs.pickle', 'rb') as inputsFile:
+        training_inputs = pickle.load(inputsFile)
+    with open('training_outputs.pickle', 'rb') as outputsFile:
+        training_outputs = pickle.load(outputsFile)
+        
+        
 
-    # Normalize pixel classification values to be between 0 and 1
-    train_images, test_images = train_images / 255.0, test_images / 255.0
     
-    class_names = ['Water', 'Buildings', 'Roads', 'Foliage', 'Mineral deposits', 'Mountainous terrain', 'Rocky terrain', 'Sandy terrain', 'Plains', 'Snow', 'Grass']
-    class_codes = {class_names[i]: i for i in range(len(class_names)}
-    
-
-    # plt.figure(figsize=(10,10))
-    # for i in range(25):
-        # plt.subplot(5,5,i+1)
-        # plt.xticks([])
-        # plt.yticks([])
-        # plt.grid(False)
-        # plt.imshow(train_images[i])
-        # # The CIFAR labels happen to be arrays, 
-        # # which is why you need the extra index
-        # plt.xlabel(class_names[train_labels[i][0]])
-    # plt.show()
-    
-    #############################################################################
     
     # We need to decide on how many layers we want
     # These parameters are not yet setup for our network
@@ -92,8 +93,7 @@ def main():
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
-    history = model.fit(train_images, train_labels, epochs=10, 
-                        validation_data=(test_images, test_labels))
+    history = model.fit(training_inputs, training_outputs, epochs=10)
     
     plt.plot(history.history['accuracy'], label='accuracy')
     plt.plot(history.history['val_accuracy'], label = 'val_accuracy')
