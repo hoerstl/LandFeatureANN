@@ -53,11 +53,13 @@ def decode_image(encoded_img):
     and 1.
     """
     global code_to_colors, class_names
-    decoded_image = np.zeros((len(encoded_img), len(encoded_img[0]), 3))
+    decoded_image = np.zeros((len(encoded_img), len(encoded_img[0]), 4))
     for i in range(len(encoded_img)):
         for j in range(len(encoded_img[0])):
-            decoded_image[i][j] = np.array(code_to_colors[int(encoded_img[i][j] * (len(class_names) + 1))])
-    return decoded_image
+            decoded_pixel = code_to_colors[int(encoded_img[i][j][0] * (len(class_names) + 1))]
+            for k in range(len(decoded_pixel)):
+                decoded_image[i][j][k] = int(decoded_pixel[k])
+    return np.uint8(decoded_image)
 
 
 def images_processing(images_path):
@@ -91,15 +93,16 @@ def images_processing(images_path):
 
 
 
-# def test_encode_decode(image_path):
-    # with Image.open(image_path) as img:
-        # img = img.resize((200,200))
-        # img_np = np.array(img)
+def test_encode_decode(image_path):
+    with Image.open(image_path) as img:
+        img = img.convert("RGBA")
+        img = img.resize((200,200))
+        img_np = np.array(img)
         
-    # start_img = img_np
-    # encoded_img = encode_image(start_img)
-    # end_img = decode_image(encoded_img)
-    # print(f"Encode-Decode worked correctly: {start_img == end_img}")
+    start_img = img_np
+    encoded_img = encode_image(start_img)
+    end_img = decode_image(encoded_img)
+    return start_img, end_img
 
 
 def main():
@@ -110,7 +113,7 @@ def main():
     class_codes = {class_names[i]: i for i in range(len(class_names))}
     
     # hex_to_rgb
-    cvt = lambda hex: ImageColor.getcolor(hex, "RGB")
+    cvt = lambda hex: ImageColor.getcolor(hex, "RGBA")
     colors_to_code = {cvt('#0f5e9c'): 0,
                       cvt('#f2f2f2'): 1, cvt('#606060'): 1,
                       cvt('#c4c4c4'): 2,
@@ -122,20 +125,25 @@ def main():
                       cvt('#c89e23'): 8,
                       cvt('#fffafa'): 9,
                       cvt('#7cfc00'): 10}
-    
     code_to_colors = {value: key for key, value in colors_to_code.items()}
     colors_to_code['default'] = 11
-    code_to_colors[11] = (0,0,0)
+    code_to_colors[11] = (0,0,0,0)
 
 
     
-    # test_encode_decode(os.path.join(os.getcwd(), 'colored_images', '60.png'))
-    
-
-    colored_image_path = os.path.join(os.getcwd(), 'colored_images')
-    colored_image_array = images_processing(colored_image_path)
+    # start, end = test_encode_decode(os.path.join(os.getcwd(), 'colored_images', '60.png'))
+    # print(f"start dimensions: {start.shape} and end dimensions: {end.shape}")
+    # beginning_img, end_img = Image.fromarray(start), Image.fromarray(end)
+    # print("showing start image")
+    # beginning_img.show()
+    # print("showing end image")
+    # end_img.show()
 
     print('starting the conversion process')
+    colored_image_path = os.path.join(os.getcwd(), 'colored_images')
+    colored_image_array = images_processing(colored_image_path)
+    colored_image_training = colored_image_array[:40]
+    colored_image_testing = colored_image_array[40:]
     with open('training_outputs.pickle', 'wb') as training_file:
         pickle.dump(colored_image_array, training_file)
     print('Colored images converted successfully...')
