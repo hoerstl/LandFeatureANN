@@ -156,7 +156,7 @@ def main():
     print('Validation colored images converted successfully...')
     
     
-    colored_image_names = sort_image_names(os.listdir(colored_image_path))
+    training_colored_image_names = sort_image_names(os.listdir(colored_image_path))
     raw_image_path = os.path.join(os.getcwd(), 'scaled')
     colored_image_array = images_processing(raw_image_path)
     
