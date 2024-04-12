@@ -140,14 +140,20 @@ def main():
     # end_img.show()
 
     print('starting the conversion process')
-    colored_image_path = os.path.join(os.getcwd(), 'colored_images')
-    colored_image_array = images_processing(colored_image_path)
-    colored_image_training = colored_image_array[:40]
-    colored_image_testing = colored_image_array[40:]
+    colored_image_trainig_path = os.path.join(os.getcwd(), 'training_colored_images')
+    colored_image_training_array = images_processing(colored_image_path)
+    colored_image_training = colored_image_training_array
     with open('training_outputs.pickle', 'wb') as training_file:
-        pickle.dump(colored_image_array, training_file)
-    print('Colored images converted successfully...')
+        pickle.dump(colored_image_training, training_file)
+    print('Training colored images converted successfully...')
     
+    
+    colored_image_validation_path = os.path.join(os.getcwd(), 'testing_colored_images')
+    colored_image_validation_array = images_processing(colored_image_path)
+    colored_image_validation = colored_image_validation_array
+    with open('validation_outputs.pickle', 'wb') as validation_file:
+        pickle.dump(colored_image_validation, validation_file)
+    print('Validation colored images converted successfully...')
     
     
     colored_image_names = sort_image_names(os.listdir(colored_image_path))
