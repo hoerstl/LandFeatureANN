@@ -70,6 +70,11 @@ def main():
     with open('training_outputs.pickle', 'rb') as outputsFile:
         training_outputs = pickle.load(outputsFile)
         
+    with open('validation_inputs.pickle', 'rb') as inputsFile:
+        validation_inputs = pickle.load(inputsFile)
+    with open('validation_outputs.pickle', 'rb') as outputsFile:
+        validation_outputs = pickle.load(outputsFile)
+        
         
 
     
