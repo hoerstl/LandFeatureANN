@@ -82,16 +82,18 @@ def main():
     model.add(layers.MaxPooling2D((2, 2)))
     model.add(layers.Conv2D(64, (3, 3), activation='relu'))
     
-    print(model.summary())
-    
     model.add(layers.Flatten())
     model.add(layers.Dense(200*200, activation='relu'))
     model.add(layers.Dense(200*200))
     
     
+    
+    
     model.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
+              
+    print(model.summary())
 
     # TODO: We need to add our validation inputs/outputs here
     history = model.fit(training_inputs, training_outputs, epochs=10)
