@@ -75,9 +75,6 @@ def images_processing(images_path):
 
         # open images:
         train_image = Image.open(images_join_path)
-
-        # Resize images:
-        train_image = train_image.resize((200,200))
         
         # Convert images to numpy array:
         # Each pixel will have three values corresponding to the RGB channels:
@@ -140,39 +137,54 @@ def main():
     # end_img.show()
 
     print('starting the conversion process')
-    colored_image_trainig_path = os.path.join(os.getcwd(), 'training_colored_images')
-    colored_image_training_array = images_processing(colored_image_path)
-    colored_image_training = colored_image_training_array
+    
+    # Convert the scaled colored training images into nparrays and store them
+    # TRAINING OUTPUTS
+    training_colored_images_path = os.path.join(os.getcwd(), 'training_colored_scaled_images')
+    sorted_training_colored_image_names = sort_image_names(os.listdir(training_colored_images_path))
+    training_colored_images_array = images_processing(training_colored_images_path)
     with open('training_outputs.pickle', 'wb') as training_file:
-        pickle.dump(colored_image_training, training_file)
+        pickle.dump(training_colored_images_array, training_file)
     print('Training colored images converted successfully...')
     
-    
-    colored_image_validation_path = os.path.join(os.getcwd(), 'testing_colored_images')
-    colored_image_validation_array = images_processing(colored_image_path)
-    colored_image_validation = colored_image_validation_array
+    # VALIDATION OUTPUTS
+    validation_colored_images_path = os.path.join(os.getcwd(), 'testing_colored_scaled_images')
+    sorted_validation_colored_image_names = sort_image_names(os.listdir(validation_colored_images_path))
+    validation_colored_images_array = images_processing(validation_colored_images_path)
     with open('validation_outputs.pickle', 'wb') as validation_file:
-        pickle.dump(colored_image_validation, validation_file)
+        pickle.dump(validation_colored_images_array, validation_file)
     print('Validation colored images converted successfully...')
     
     
-    training_colored_image_names = sort_image_names(os.listdir(colored_image_path))
-    raw_image_path = os.path.join(os.getcwd(), 'scaled')
-    colored_image_array = images_processing(raw_image_path)
-    
-    raw_image_array = []
-    for image_name in colored_image_names:  # for every colored image we loaded, load the raw image in the same order
-        img_path = os.path.join(raw_image_path, image_name)
+    # TRAINING INPUTS
+    training_input_images_path = os.path.join(os.getcwd(), 'training_scaled_images')    
+    training_input_image_array = []
+    for image_name in sorted_training_colored_image_names:  # for every colored image we loaded, load the raw image in the same order
+        img_path = os.path.join(training_input_images_path, image_name)
         train_image = Image.open(img_path)
-        train_image = train_image.resize((200,200))
         train_image_np = np.array(train_image)
-        raw_image_array.append(train_image_np)
+        training_input_image_array.append(train_image_np)
         
     
     with open('training_inputs.pickle', 'wb') as training_file:
-        pickle.dump(raw_image_array, training_file)
-    print('Raw images converted successfully...')
+        pickle.dump(np.array(training_input_image_array), training_file)
+    print('Training input images converted successfully...')
     
+    
+    # VALIDATION INPUTS
+    validation_input_images_path = os.path.join(os.getcwd(), 'testing_scaled_images')
+    validation_input_image_array = []
+    for image_name in sorted_validation_colored_image_names:  # for every colored image we loaded, load the raw image in the same order
+        img_path = os.path.join(validation_input_images_path, image_name)
+        validation_image = Image.open(img_path)
+        validation_image_np = np.array(validation_image)
+        validation_input_image_array.append(validation_image_np)
+        
+    
+    with open('testing_inputs.pickle', 'wb') as testing_file:
+        pickle.dump(np.array(validation_input_image_array), testing_file)
+    print('Validation input images converted successfully...')
+    print('Done!')
     
 
 if __name__ == "__main__":

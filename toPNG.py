@@ -34,8 +34,9 @@ def main():
         arguments, values = getopt.getopt(system_arguments, options, long_options)
         for arg, val in arguments:
             if arg in ("-d", "--directory"):
-                imgConversionCount = convertToPNG(val)
-                print(f"successfully converted all {imgConversionCount} images to png")
+                folderPath = os.path.join(os.getcwd(), val)
+                imgConversionCount = convertToPNG(folderPath)
+                print(f"successfully converted all {imgConversionCount} images from {folderPath} to png")
         
     except getopt.error as error:
         print(str(error))
