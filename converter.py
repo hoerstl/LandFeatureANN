@@ -181,7 +181,7 @@ def main():
         validation_input_image_array.append(validation_image_np)
         
     
-    with open('testing_inputs.pickle', 'wb') as testing_file:
+    with open('validation_inputs.pickle', 'wb') as testing_file:
         pickle.dump(np.array(validation_input_image_array), testing_file)
     print('Validation input images converted successfully...')
     print('Done!')
