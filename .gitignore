@@ -1,4 +1,5 @@
 venv
-.ipynb_checkpoints
+.ipynb_checkpoints/
 myenv
 *.pickle
+__pycache__/
