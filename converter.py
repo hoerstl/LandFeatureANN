@@ -19,6 +19,9 @@ import pickle
 # list files in a directory
 import os
 
+# Get the image dimensions
+import theScaler
+
 def sort_image_names(nameList):
     # We need to sort this list twice since one sort gives that, for example '59.png' < '6.png' when we want to see 6 first.
     # Therefore, we need to sort first by numbering and then by length of the file to get the 1, 2, 3, 4, ... behavior we want to see
@@ -184,7 +187,7 @@ def main():
     with open('validation_inputs.pickle', 'wb') as testing_file:
         pickle.dump(np.array(validation_input_image_array), testing_file)
     print('Validation input images converted successfully...')
-    print('Done!')
+    print('Finished all conversions')
     
 
 if __name__ == "__main__":
