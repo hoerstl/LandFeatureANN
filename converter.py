@@ -44,7 +44,7 @@ def encode_image(colorized_img):
             else:
                 codified_img[i][j] = colors_to_code['default'] + .5
     # normalize the pixel values between 0 and 1:
-    codified_img = codified_img / (len(class_names) + 1)
+    codified_img = codified_img / (len(class_names) + 1) # +1 for the 'default' class
     return codified_img
 
 
@@ -59,7 +59,9 @@ def decode_image(encoded_img):
     decoded_image = np.zeros((len(encoded_img), len(encoded_img[0]), 4))
     for i in range(len(encoded_img)):
         for j in range(len(encoded_img[0])):
-            decoded_pixel = code_to_colors[int(encoded_img[i][j][0] * (len(class_names) + 1))]
+            classification = int(encoded_img[i][j][0] * (len(class_names) + 1))
+            if (classification == 12): classification = 11
+            decoded_pixel = code_to_colors[classification] # + 1 for the 'default' class
             for k in range(len(decoded_pixel)):
                 decoded_image[i][j][k] = int(decoded_pixel[k])
     return np.uint8(decoded_image)
@@ -148,6 +150,7 @@ def main():
     training_colored_images_array = images_processing(training_colored_images_path)
     with open('training_outputs.pickle', 'wb') as training_file:
         pickle.dump(training_colored_images_array, training_file)
+    print(training_colored_images_array[0].shape)
     print('Training colored images converted successfully...')
     
     # VALIDATION OUTPUTS
@@ -156,6 +159,7 @@ def main():
     validation_colored_images_array = images_processing(validation_colored_images_path)
     with open('validation_outputs.pickle', 'wb') as validation_file:
         pickle.dump(validation_colored_images_array, validation_file)
+    print(validation_colored_images_array[0].shape)
     print('Validation colored images converted successfully...')
     
     
@@ -171,6 +175,7 @@ def main():
     
     with open('training_inputs.pickle', 'wb') as training_file:
         pickle.dump(np.array(training_input_image_array), training_file)
+    print(training_input_image_array[0].shape)
     print('Training input images converted successfully...')
     
     
@@ -186,6 +191,7 @@ def main():
     
     with open('validation_inputs.pickle', 'wb') as testing_file:
         pickle.dump(np.array(validation_input_image_array), testing_file)
+    print(validation_input_image_array[0].shape)
     print('Validation input images converted successfully...')
     print('Finished all conversions')
     
