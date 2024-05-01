@@ -44,7 +44,7 @@ def encode_image(colorized_img):
             else:
                 codified_img[i][j] = colors_to_code['default'] + .5
     # normalize the pixel values between 0 and 1:
-    codified_img = codified_img / (len(class_names) + 1) # +1 for the 'default' class
+    codified_img = codified_img / (len(class_names))
     return codified_img
 
 
@@ -59,9 +59,10 @@ def decode_image(encoded_img):
     decoded_image = np.zeros((len(encoded_img), len(encoded_img[0]), 4))
     for i in range(len(encoded_img)):
         for j in range(len(encoded_img[0])):
-            classification = int(encoded_img[i][j][0] * (len(class_names) + 1))
+            classification = int(encoded_img[i][j][0] * (len(class_names)))
             if (classification == 12): classification = 11
-            decoded_pixel = code_to_colors[classification] # + 1 for the 'default' class
+            elif (classification > len(class_names)): raise ValueError(f"Somehow, we decoded a pixel to a classification of {classification} which is too large")
+            decoded_pixel = code_to_colors[classification]
             for k in range(len(decoded_pixel)):
                 decoded_image[i][j][k] = int(decoded_pixel[k])
     return np.uint8(decoded_image)
@@ -110,26 +111,29 @@ def test_encode_decode(image_path):
 def main():
     global class_names, class_colors, class_codes, colors_to_code, code_to_colors
     # Class names to plot the images:
-    class_names = ['Water', 'Buildings', 'Roads', 'Foliage', 'Mineral deposits', 'Mountainous terrain', 'Rocky terrain', 'Sandy terrain', 'Plains', 'Snow', 'Grass']
-    class_colors = ['#0f5e9c', ('#f2f2f2', '#606060'), '#c4c4c4', '#3a5f0b', '#490e0e', '#5a7a4c', '#698287', '#f7ae64', '#c89e23', '#fffafa', '#7cfc00']
+    # old class_names = ['Water', 'Buildings', 'Roads', 'Foliage', 'Mineral deposits', 'Mountainous terrain', 'Rocky terrain', 'Sandy terrain', 'Plains', 'Snow', 'Grass']
+    class_names = ['Buildings', 'Roads', 'Default', 'Water', 'Foliage', 'Grass', 'Plains', 'Sandy terrain', 'Rocky terrain', 'Mountainous terrain', 'Mineral deposits', 'Snow']
+    # old class_colors = ['#0f5e9c', ('#f2f2f2', '#606060'), '#c4c4c4', '#3a5f0b', '#490e0e', '#5a7a4c', '#698287', '#f7ae64', '#c89e23', '#fffafa', '#7cfc00']
+    class_colors = [('#f2f2f2ff', '#606060ff'), '#c4c4c4ff', '#00000000', '#0f5e9cff', '#3a5f0bff', '#7cfc00ff', '#c89e23ff', '#f7ae64ff', '#698287ff', '#5a7a4cff', '#490e0eff', '#fffafaff']
     class_codes = {class_names[i]: i for i in range(len(class_names))}
     
     # hex_to_rgb
     cvt = lambda hex: ImageColor.getcolor(hex, "RGBA")
-    colors_to_code = {cvt('#0f5e9c'): 0,
-                      cvt('#f2f2f2'): 1, cvt('#606060'): 1,
-                      cvt('#c4c4c4'): 2,
-                      cvt('#3a5f0b'): 3,
-                      cvt('#490e0e'): 4,
-                      cvt('#5a7a4c'): 5,
-                      cvt('#698287'): 6,
-                      cvt('#f7ae64'): 7,
-                      cvt('#c89e23'): 8,
-                      cvt('#fffafa'): 9,
-                      cvt('#7cfc00'): 10}
-    code_to_colors = {value: key for key, value in colors_to_code.items()}
-    colors_to_code['default'] = 11
-    code_to_colors[11] = (0,0,0,0)
+    colors_to_code = {cvt('#f2f2f2ff'): 0, cvt('#606060ff'): 0,
+                      cvt('#c4c4c4ff'): 1,
+                      'default': 2,
+                      cvt('#0f5e9cff'): 3,
+                      cvt('#3a5f0bff'): 4,
+                      cvt('#7cfc00ff'): 5,
+                      cvt('#c89e23ff'): 6,
+                      cvt('#f7ae64ff'): 7,
+                      cvt('#698287ff'): 8,
+                      cvt('#5a7a4cff'): 9,
+                      cvt('#490e0eff'): 10,
+                      cvt('#fffafaff'): 11}
+    code_to_colors = {value: key for key, value in colors_to_code.items() if key != 'default'}
+    code_to_colors[2] = cvt('#00000000')
+    # currently working to debug the way that default is added to the code_to_colors dictionary
 
 
     
@@ -169,7 +173,7 @@ def main():
     for image_name in sorted_training_colored_image_names:  # for every colored image we loaded, load the raw image in the same order
         img_path = os.path.join(training_input_images_path, image_name)
         train_image = Image.open(img_path)
-        train_image_np = np.array(train_image)
+        train_image_np = np.array(train_image) / 255
         training_input_image_array.append(train_image_np)
         
     
@@ -185,7 +189,7 @@ def main():
     for image_name in sorted_validation_colored_image_names:  # for every colored image we loaded, load the raw image in the same order
         img_path = os.path.join(validation_input_images_path, image_name)
         validation_image = Image.open(img_path)
-        validation_image_np = np.array(validation_image)
+        validation_image_np = np.array(validation_image) / 255
         validation_input_image_array.append(validation_image_np)
         
     
